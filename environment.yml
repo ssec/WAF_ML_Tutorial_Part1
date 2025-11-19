@@ -1,0 +1,17 @@
+name: waf_tutorial_part1
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - numpy
+  - matplotlib
+  - pandas
+  - scikit-learn
+  - pyyaml
+  - pytest
+  - pip
+  - tqdm
+  - netCDF4
+  - xarray 
+  - ipykernel
+  - s3fs
