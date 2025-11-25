@@ -50,27 +50,76 @@ def get_right_units_vil(vil):
     tmp[idx] = np.exp((vil[idx] - 83.9)/38.9)
     return tmp
 
-def plot_feature_loc(da,ax,q = [0,1,10,25,50,75,90,99,100]):
-    """ This will plot representative pixels matching the quantiles given """
-    vals = np.nanpercentile(da,q)
+def plot_feature_loc(da, ax, q=[0, 1, 10, 25, 50, 75, 90, 99, 100]):
+    """
+    Plot representative pixels near the specified quantiles of a 2D DataArray.
+
+    da : xarray.DataArray with shape (y, x) or (x, y)
+    ax : matplotlib Axes
+    q  : list of quantiles to annotate
+    """
+
+    # Convert to numpy array
+    arr = np.asarray(da.values)
+
+    # Basic validation
+    if arr.size == 0:
+        raise ValueError("plot_feature_loc: input DataArray has size 0 (no data).")
+    if arr.ndim != 2:
+        raise ValueError(f"plot_feature_loc expects 2D array, got shape {arr.shape}")
+
+    # Target percentile values
+    vals = np.nanpercentile(arr, q)
+
     xs = []
     ys = []
+
     for v in vals:
-        local_idx = np.where(np.round(da.values,1) == np.round(v,1))
-        if len(local_idx[0]) > 1:
-            ii = np.random.choice(np.arange(0,len(local_idx[0])),size=1)
-            xs.append(local_idx[0][ii[0]])
-            ys.append(local_idx[1][ii[0]])
+
+        # If the quantile is NaN (all-NaN data), skip
+        if np.isnan(v):
+            xs.append(None)
+            ys.append(None)
+            continue
+
+        # Try exact matches first (with rounding for stability)
+        mask = (np.round(arr, 1) == np.round(v, 1))
+        local_idx = np.where(mask)
+        n = len(local_idx[0])
+
+        if n == 0:
+            # If no exact match, pick closest pixel to the quantile
+            diff = np.abs(arr - v)
+            diff = np.where(np.isnan(diff), np.inf, diff)
+            if not np.isfinite(diff).any():
+                xs.append(None)
+                ys.append(None)
+                continue
+            iy, ix = np.unravel_index(np.argmin(diff), arr.shape)
+
+        elif n == 1:
+            iy = local_idx[0][0]
+            ix = local_idx[1][0]
+
         else:
-            ii = 0
-            xs.append(local_idx[0][ii])
-            ys.append(local_idx[1][ii])
-            
-    markerlist = ['min','$01$','$10$','$25$','$50$','$75$','$90$','$99$','max']
-    zlist = list(zip(xs,ys))
-    for i,(x,y) in enumerate(zlist):
-        ax.text(y,x,markerlist[i],path_effects=pe2)
-    return 
+            # Multiple matches → choose one randomly
+            ii = np.random.randint(n)
+            iy = local_idx[0][ii]
+            ix = local_idx[1][ii]
+
+        xs.append(iy)
+        ys.append(ix)
+
+    # Labels for the quantiles
+    markerlist = ['min', '$01$', '$10$', '$25$', '$50$', '$75$', '$90$', '$99$', 'max']
+
+    # Annotate points on the plot
+    for label, iy, ix in zip(markerlist, xs, ys):
+        if iy is None or ix is None:
+            continue
+        ax.text(ix, iy, label, path_effects=pe2)
+
+    return
 
 def adjust_keys(df,keyadd,dask=False,dropevent=False):
     if dask:
