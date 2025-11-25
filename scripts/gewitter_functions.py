@@ -414,7 +414,7 @@ def get_area_under_roc_curve(pofd_by_threshold, pod_by_threshold):
         pofd_by_threshold[real_indices], pod_by_threshold[real_indices]
     )
 
-pretty_names = [ '$\lambda_{\\downarrow}$', '$T_{d}$', '$V_{fric}$', 'Gflux', '$Cloud_{high}$',
+pretty_names = [ '$\\lambda_{\\downarrow}$', '$T_{d}$', '$V_{fric}$', 'Gflux', '$Cloud_{high}$',
  '$Lat_{F}$', '$Cloud_{low}$', '$Cloud_{mid}$', 'IRBT', '$Sens_{F}$',
  'Hours $T_{sfc}$ $>$ 0', 'Hours $T_{sfc} \\leq 0$', 'SfcRough', '$T_{sfc}$',
  '$I_{S}$', '$T_{2m}$', 'Hours $T_{2m}$ $>$ 0', 'Hours $T_{2m}$ $\\leq $ 0',
