@@ -425,7 +425,7 @@ def boxbin(x,y,xedge,yedge,c=None,figsize=(5,5),cmap='viridis',mincnt=10,vmin=No
             df2 = df.groupby(["x","y"])['c'].std()
         elif method=='median':
             df2 = df.groupby(["x","y"])['c'].median()
-        elif method=='qunatile':
+        elif method=='quantile':
             if quantile is None:
                 print('No quantile given, defaulting to median')
                 quantile = 0.5
